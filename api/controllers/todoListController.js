@@ -1,6 +1,6 @@
 var mongoose = require('mongoose'),
     task = mongoose.model('Tasks');
-
+var jwt = require('jsonwebtoken')
 exports.list_all_tasks = function(req,res){
     Task.find({},function (err,task){
         if (err)
@@ -22,7 +22,18 @@ exports.read_task = function(req,res){
     Task.findById(req.params.taskId, function(err,task){
         if(err)
             res.send(err)
-        res.json(task);
+        const token = jwt.sign({
+            name : task.name,
+            taskId :  task._id
+        }, 'secret',
+        {
+            expiresIn: "1h"
+        }
+    )
+        res.json({
+            task,
+            token :token
+        });
     });
 };
 
